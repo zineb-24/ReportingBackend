@@ -31,8 +31,8 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id_user', 'email', 'name', 'phone', 'is_admin']
-        read_only_fields = ['id_user']
+        fields = ['id_user', 'email', 'name', 'phone', 'is_admin', 'is_active', 'last_login']
+        read_only_fields = ['id_user', 'last_login']
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -131,10 +131,28 @@ class UserSalleLinkSerializer(serializers.ModelSerializer):
 
 
 class UserSalleListSerializer(serializers.ModelSerializer):
-    user_name = serializers.CharField(source='id_user.name', read_only=True)
-    user_email = serializers.CharField(source='id_user.email', read_only=True)
-    salle_name = serializers.CharField(source='id_salle.name', read_only=True)
+    admin_creator = serializers.SerializerMethodField()
+    id_user = serializers.SerializerMethodField()
+    id_salle = serializers.SerializerMethodField()
     
     class Meta:
         model = User_Salle
-        fields = ['id', 'id_user', 'id_salle', 'user_name', 'user_email', 'salle_name', 'date_creation']
+        fields = ['id', 'admin_creator', 'id_user', 'id_salle', 'date_creation']
+    
+    def get_admin_creator(self, obj):
+        return {
+            'id_user': obj.admin_creator.id_user,
+            'name': obj.admin_creator.name
+        }
+    
+    def get_id_user(self, obj):
+        return {
+            'id_user': obj.id_user.id_user,
+            'name': obj.id_user.name
+        }
+    
+    def get_id_salle(self, obj):
+        return {
+            'id_salle': obj.id_salle.id_salle,
+            'name': obj.id_salle.name
+        }

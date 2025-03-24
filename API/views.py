@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -21,6 +22,11 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         
         user = serializer.validated_data['user']
+        
+        # Update last_login timestamp
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
+        
         login(request, user)
         
         # Create or get token
@@ -73,16 +79,18 @@ class AdminDashboardView(APIView):
             
         user_data = UserSerializer(request.user).data
         # Count total users for dashboard stats
-        user_count = User.objects.count()
+        user_count = User.objects.filter(is_admin=False).count()
         admin_count = User.objects.filter(is_admin=True).count()
+        # Count total gyms (salles)
+        gym_count = Salle.objects.count()
         
         return Response({
             'message': 'Admin Dashboard',
             'user': user_data,
             'stats': {
-                'total_users': user_count,
+                'regular_users': user_count,
                 'admin_users': admin_count,
-                'regular_users': user_count - admin_count
+                'total_gyms': gym_count
             }
         })
 
