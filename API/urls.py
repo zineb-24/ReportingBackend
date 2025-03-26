@@ -5,7 +5,7 @@ from .views import (
     AdminUserCreateView, AdminUserListView, AdminUserDetailView, 
     AdminSalleListView, AdminSalleCreateView, AdminSalleDetailView,
     AdminSalleUsersView, AdminUserSalleLinkDetailView, AdminUserSalleLinkListView,
-    AdminUserSalleLinkView, AdminUserSallesView
+    AdminUserSalleLinkView, AdminUserSallesView, AdminUserChangePasswordView
 )
 
 urlpatterns = [
@@ -18,6 +18,7 @@ urlpatterns = [
     path('admin-dashboard/users/', AdminUserListView.as_view(), name='admin-user-list'),
     path('admin-dashboard/users/create/', AdminUserCreateView.as_view(), name='admin-user-create'),
     path('admin-dashboard/users/<int:id_user>/', AdminUserDetailView.as_view(), name='admin-user-detail'),
+    path('admin-dashboard/users/<int:id_user>/change-password/', AdminUserChangePasswordView.as_view(), name='admin-user-change-password'),
 
     # Admin salle management URLs
     path('admin-dashboard/salles/', AdminSalleListView.as_view(), name='admin-salle-list'),

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
@@ -12,6 +12,7 @@ from rest_framework import generics, permissions
 from .serializers import (UserCreateSerializer, UserUpdateSerializer, SalleSerializer, 
                           SalleCreateSerializer, UserSalleLinkSerializer, UserSalleListSerializer)
 from .models import User, Salle, User_Salle
+from django.contrib.auth.hashers import check_password
 
 
 class LoginView(APIView):
@@ -291,3 +292,28 @@ class AdminSalleUsersView(generics.ListAPIView):
             
         # Get all users linked to this salle
         return User.objects.filter(salle_Links__id_salle__id_salle=salle_id)
+
+
+class AdminUserChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def put(self, request, id_user):
+        # Check if current user is an admin
+        if not request.user.is_admin:
+            return Response({"error": "Only administrators can change passwords"}, 
+                          status=status.HTTP_403_FORBIDDEN)
+            
+        user = get_object_or_404(User, id_user=id_user)
+        
+        new_password = request.data.get('new_password')
+        
+        # Validate new password
+        if not new_password or len(new_password) < 6:
+            return Response({"new_password": "Password must be at least 6 characters"}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        # Set new password
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)

@@ -29,10 +29,20 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    admin_creator = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['id_user', 'email', 'name', 'phone', 'is_admin', 'is_active', 'last_login']
-        read_only_fields = ['id_user', 'last_login']
+        fields = ['id_user', 'email', 'name', 'phone', 'is_admin', 'is_active', 'last_login', 'admin_creator', 'date_creation']
+        read_only_fields = ['id_user', 'last_login', 'admin_creator', 'date_creation']
+    
+    def get_admin_creator(self, obj):
+        if obj.admin_creator:
+            return {
+                'id_user': obj.admin_creator.id_user,
+                'name': obj.admin_creator.name
+            }
+        return None
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -68,11 +78,20 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})
+    admin_creator = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ['id_user', 'email', 'name', 'phone', 'password', 'is_admin', 'is_active']
-        read_only_fields = ['id_user']
+        fields = ['id_user', 'email', 'name', 'phone', 'password', 'is_admin', 'is_active', 'admin_creator', 'date_creation']
+        read_only_fields = ['id_user', 'admin_creator', 'date_creation']
+    
+    def get_admin_creator(self, obj):
+        if obj.admin_creator:
+            return {
+                'id_user': obj.admin_creator.id_user,
+                'name': obj.admin_creator.name
+            }
+        return None
     
     def update(self, instance, validated_data):
         # Handle password separately
