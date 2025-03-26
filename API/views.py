@@ -100,6 +100,12 @@ class AdminUserCreateView(generics.CreateAPIView):
     serializer_class = UserCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    #For debugging
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        print("User creation response:", response.data)
+        return response
+    
     def get_serializer_context(self):
         context = super().get_serializer_context()
         return context
@@ -206,12 +212,17 @@ class AdminUserSalleLinkView(generics.CreateAPIView):
     serializer_class = UserSalleLinkSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    #For debugging
+    def create(self, request, *args, **kwargs):
+        print("Received link data:", request.data)
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         if not self.request.user.is_admin:
             raise permissions.PermissionDenied("Only admin users can create user-salle links")
         serializer.save()
-
-
+    
+    
 class AdminUserSalleLinkListView(generics.ListAPIView):
     serializer_class = UserSalleListSerializer
     permission_classes = [permissions.IsAuthenticated]

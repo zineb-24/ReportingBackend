@@ -40,7 +40,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['email', 'name', 'phone', 'password', 'is_admin']
+        fields = ['id_user', 'email', 'name', 'phone', 'password', 'is_admin']
+        read_only_fields = ['id_user']  # Make id_user read-only
     
     def create(self, validated_data):
         # Get the admin user who is creating this account
@@ -56,6 +57,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
             admin_creator=admin_user
         )
         return user
+    
+    def to_representation(self, instance):
+        
+        #Customize the response data after user creation
+        representation = super().to_representation(instance)
+        representation['id_user'] = instance.id_user
+        return representation
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -103,6 +111,11 @@ class SalleCreateSerializer(serializers.ModelSerializer):
             admin_creator=admin_user
         )
         return salle
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['id_salle'] = instance.id_salle
+        return representation
 
 
 class UserSalleLinkSerializer(serializers.ModelSerializer):
