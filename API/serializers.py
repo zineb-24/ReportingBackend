@@ -108,10 +108,20 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     
 
 class SalleSerializer(serializers.ModelSerializer):
+    admin_creator = serializers.SerializerMethodField()
+    
     class Meta:
         model = Salle
         fields = ['id_salle', 'name', 'phone', 'date_creation', 'admin_creator']
         read_only_fields = ['id_salle', 'date_creation', 'admin_creator']
+    
+    def get_admin_creator(self, obj):
+        if obj.admin_creator:
+            return {
+                'id_user': obj.admin_creator.id_user,
+                'name': obj.admin_creator.name
+            }
+        return None
 
 
 class SalleCreateSerializer(serializers.ModelSerializer):
